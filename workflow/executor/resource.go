@@ -17,6 +17,8 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/util/wait"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/util/retry"
 
 	"github.com/argoproj/argo-workflows/v3/errors"
@@ -33,6 +35,21 @@ func (we *WorkflowExecutor) ExecResource(action string, manifestPath string, fla
 	}
 
 	var out []byte
+	config, err := clientcmd.BuildConfigFromFlags("", "")
+	if err != nil {
+		return "", "", "", err
+	}
+	clientset, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		return "", "", "", err
+	}
+	restClient := clientset.RESTClient()
+	restClient.Get()
+	// https://caiorcferreira.github.io/post/the-kubernetes-dynamic-client/
+	// https://stackoverflow.com/questions/47116811/client-go-parse-kubernetes-json-files-to-k8s-structures/47139247#47139247
+	// https://github.com/kubernetes/client-go/issues/216
+	// https://stackoverflow.com/questions/58783939/using-client-go-to-kubectl-apply-against-the-kubernetes-api-directly-with-mult
+	// get|create|apply|delete
 	err = retry.OnError(retry.DefaultBackoff, argoerr.IsTransientErr, func() error {
 		cmd := exec.Command("kubectl", args...)
 		log.Info(strings.Join(cmd.Args, " "))
