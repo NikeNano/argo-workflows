@@ -9,7 +9,11 @@ import (
 const (
 	// Container names used in the workflow pod
 	MainContainerName = "main"
+<<<<<<< Updated upstream
 	InitContainerName = "init"
+=======
+	InitContainerName = "workflow-init"
+>>>>>>> Stashed changes
 	WaitContainerName = "wait"
 
 	// AnnotationKeyDefaultContainer is the annotation that specify container that will be used by default in case of kubectl commands for example

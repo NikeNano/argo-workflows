@@ -56,6 +56,9 @@ type dagContext struct {
 	// Because this resolved "depends" is computed using regex and regex is expensive, we cache the results so that they
 	// are only computed once per operation
 	dependsLogic map[string]string
+
+	// "fail fast" feature to stop scheduling new steps
+	failFast *bool
 }
 
 func (d *dagContext) GetTaskDependencies(taskName string) []string {
@@ -228,6 +231,7 @@ func (woc *wfOperationCtx) executeDAG(ctx context.Context, nodeName string, tmpl
 		onExitTemplate: opts.onExitTemplate,
 		dependencies:   make(map[string][]string),
 		dependsLogic:   make(map[string]string),
+		failFast:       tmpl.DAG.FailFast,
 	}
 
 	// Identify our target tasks. If user did not specify any, then we choose all tasks which have
@@ -361,6 +365,9 @@ func (woc *wfOperationCtx) executeDAGTask(ctx context.Context, dagCtx *dagContex
 	if node != nil && node.Fulfilled() {
 		// Collect the completed task metrics
 		_, tmpl, _, _ := dagCtx.tmplCtx.ResolveTemplate(task)
+		if dagCtx.failFast != nil {
+			tmpl.FailFast = dagCtx.failFast
+		}
 		if tmpl != nil && tmpl.Metrics != nil {
 			if prevNodeStatus, ok := woc.preExecutionNodePhases[node.ID]; ok && !prevNodeStatus.Fulfilled() {
 				localScope, realTimeScope := woc.prepareMetricScope(node)
