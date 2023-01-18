@@ -3,7 +3,7 @@ module github.com/argoproj/argo-workflows/v3
 go 1.18
 
 require (
-	cloud.google.com/go/storage v1.28.0
+	cloud.google.com/go/storage v1.28.1
 	github.com/Azure/azure-sdk-for-go/sdk/azidentity v1.1.0
 	github.com/Azure/azure-sdk-for-go/sdk/storage/azblob v0.4.1
 	github.com/Knetic/govaluate v3.0.1-0.20171022003610-9aa49832a739+incompatible
